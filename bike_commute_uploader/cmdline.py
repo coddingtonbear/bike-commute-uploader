@@ -81,4 +81,6 @@ def main():
         except Exception as e:
             print("Error encountered: " + e)
 
+        os.unlink(full_path)
+
         print("OK")
