@@ -12,7 +12,7 @@ import pytz
 def get_media_info(path):
     output = subprocess.check_output(
         [
-            'mediainfo',
+            '/usr/bin/mediainfo/mediainfo',
             '--Output=XML',
             path,
         ]
@@ -21,14 +21,16 @@ def get_media_info(path):
     return ElementTree.fromstring(output)
 
 
-def upload_video(path, title, recording_date):
+def upload_video(path, title, recording_date, secrets, credentials):
     subprocess.check_call(
         [
-            'youtube-uploader',
+            '/usr/local/bin/youtube-upload',
             '--title', title,
             '--tags', 'commute, autoupload',
             '--recording-date', recording_date.isoformat(),
             '--privacy', 'unlisted',
+            '--client-secrets', secrets,
+            '--credentials', credentials,
             path,
         ]
     )
@@ -36,6 +38,8 @@ def upload_video(path, title, recording_date):
 
 def main():
     path = sys.argv[1]
+    secrets = sys.argv[2]
+    credentials = sys.argv[3]
 
     files = os.listdir(path)
 
@@ -47,28 +51,33 @@ def main():
         if ext != '.MP4':
             continue
 
-        info = get_media_info(full_path)
+        try:
+            info = get_media_info(full_path)
 
-        date_string = info.find(
-            ".//File/track[@type='General']/Encoded_date"
-        ).text
-        encoded_date = parse(
-            date_string[date_string.find(' ')+1:]
-        )
-        encoded_date = encoded_date.replace(
-            tzinfo=pytz.timezone(
-                date_string[:date_string.find(' ')]
+            date_string = info.find(
+                ".//File/track[@type='General']/Encoded_date"
+            ).text
+            encoded_date = parse(
+                date_string[date_string.find(' ')+1:]
             )
-        )
-
-        upload_video(
-            full_path,
-            "{date} Bike Commute (auto-uploaded)".format(
-                date=encoded_date.astimezone(local_tz).strftime(
-                    '%A, %d %B %Y, %h:%M %p',
+            encoded_date = encoded_date.replace(
+                tzinfo=pytz.timezone(
+                    date_string[:date_string.find(' ')]
                 )
-            ),
-            encoded_date,
-        )
+            )
+
+            upload_video(
+                full_path,
+                "{date} Bike Commute (auto-uploaded)".format(
+                    date=encoded_date.astimezone(local_tz).strftime(
+                        '%A, %d %B %Y, %h:%M %p',
+                    )
+                ),
+                encoded_date,
+                secrets,
+                credentials,
+            )
+        except Exception as e:
+            print(e)
 
         print("OK")
