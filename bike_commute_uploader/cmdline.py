@@ -45,6 +45,7 @@ def main():
 
     files = os.listdir(path)
 
+    gopro_tz = pytz.timezone('Japan')
     local_tz = pytz.timezone('America/Los_Angeles')
 
     for filename in files:
@@ -62,11 +63,7 @@ def main():
             encoded_date = parse(
                 date_string[date_string.find(' ')+1:]
             )
-            encoded_date = encoded_date.replace(
-                tzinfo=pytz.timezone(
-                    date_string[:date_string.find(' ')]
-                )
-            )
+            encoded_date = encoded_date.replace(tzinfo=gopro_tz)
 
             upload_video(
                 full_path,
