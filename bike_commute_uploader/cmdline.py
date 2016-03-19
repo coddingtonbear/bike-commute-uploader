@@ -28,7 +28,9 @@ def upload_video(path, title, recording_date, secrets, credentials):
             '--title', title,
             '--tags', 'commute, autoupload',
             '--recording-date', (
-                recording_date.strftime('%Y-%m-%dT%H:%M:%S.0Z')
+                recording_date.astimezone(pytz.UTC).strftime(
+                    '%Y-%m-%dT%H:%M:%S.0Z'
+                )
             ),
             '--privacy', 'unlisted',
             '--client-secrets', secrets,
