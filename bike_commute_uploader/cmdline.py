@@ -47,8 +47,8 @@ def main():
 
     files = os.listdir(path)
 
-    gopro_tz = pytz.timezone('Japan')
     local_tz = pytz.timezone('America/Los_Angeles')
+    gopro_tz = local_tz
 
     for filename in files:
         full_path = os.path.join(path, filename)
