@@ -1,0 +1,74 @@
+from __future__ import print_function
+
+import os
+import subprocess
+import sys
+from xml.etree import ElementTree
+
+from dateutil.parser import parse
+import pytz
+
+
+def get_media_info(path):
+    output = subprocess.check_output(
+        [
+            'mediainfo',
+            '--Output=XML',
+            path,
+        ]
+    )
+
+    return ElementTree.fromstring(output)
+
+
+def upload_video(path, title, recording_date):
+    subprocess.check_call(
+        [
+            'youtube-uploader',
+            '--title', title,
+            '--tags', 'commute, autoupload',
+            '--recording-date', recording_date.isoformat(),
+            '--privacy', 'unlisted',
+            path,
+        ]
+    )
+
+
+def main():
+    path = sys.argv[1]
+
+    files = os.listdir(path)
+
+    local_tz = pytz.timezone('America/Los_Angeles')
+
+    for filename in files:
+        full_path = os.path.join(path, filename)
+        basename, ext = os.path.splitext(filename)
+        if ext != '.MP4':
+            continue
+
+        info = get_media_info(full_path)
+
+        date_string = info.find(
+            ".//File/track[@type='General']/Encoded_date"
+        ).text
+        encoded_date = parse(
+            date_string[date_string.find(' ')+1:]
+        )
+        encoded_date = encoded_date.replace(
+            tzinfo=pytz.timezone(
+                date_string[:date_string.find(' ')]
+            )
+        )
+
+        upload_video(
+            full_path,
+            "{date} Bike Commute (auto-uploaded)".format(
+                date=encoded_date.astimezone(local_tz).strftime(
+                    '%A, %d %B %Y, %h:%M %p',
+                )
+            ),
+            encoded_date,
+        )
+
+        print("OK")
