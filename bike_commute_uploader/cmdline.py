@@ -72,7 +72,7 @@ def main():
                 full_path,
                 "{date} Bike Commute (auto-uploaded)".format(
                     date=encoded_date.astimezone(local_tz).strftime(
-                        '%A, %d %B %Y, %h:%M %p',
+                        '%A, %d %B %Y, %I:%M %p',
                     )
                 ),
                 encoded_date,
