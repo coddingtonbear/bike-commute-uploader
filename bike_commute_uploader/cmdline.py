@@ -12,7 +12,7 @@ import pytz
 def get_media_info(path):
     output = subprocess.check_output(
         [
-            '/usr/bin/mediainfo/mediainfo',
+            '/usr/bin/mediainfo',
             '--Output=XML',
             path,
         ]
@@ -65,8 +65,6 @@ def main():
                     date_string[:date_string.find(' ')]
                 )
             )
-            print(encoded_date)
-            print(full_path)
 
             upload_video(
                 full_path,
@@ -80,6 +78,6 @@ def main():
                 credentials,
             )
         except Exception as e:
-            print(e)
+            print("Error encountered: " + e)
 
         print("OK")
