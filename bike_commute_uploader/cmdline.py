@@ -27,7 +27,7 @@ def upload_video(path, title, recording_date, secrets, credentials):
             '/usr/local/bin/youtube-upload',
             '--title', title,
             '--tags', 'commute, autoupload',
-            '--recording-date', recording_date.isoformat(),
+            '--recording-date', recording_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
             '--privacy', 'unlisted',
             '--client-secrets', secrets,
             '--credentials', credentials,
