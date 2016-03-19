@@ -65,6 +65,8 @@ def main():
                     date_string[:date_string.find(' ')]
                 )
             )
+            print(encoded_date)
+            print(full_path)
 
             upload_video(
                 full_path,
