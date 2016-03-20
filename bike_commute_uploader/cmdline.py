@@ -79,7 +79,7 @@ def main():
                 credentials,
             )
         except Exception as e:
-            print("Error encountered: " + e)
+            print("Error encountered: " + str(e))
 
         os.unlink(full_path)
 
