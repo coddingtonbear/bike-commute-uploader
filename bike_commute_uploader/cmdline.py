@@ -1,8 +1,9 @@
 from __future__ import print_function
 
+import argparse
 import os
 import subprocess
-import sys
+import time
 from xml.etree import ElementTree
 
 from dateutil.parser import parse
@@ -41,16 +42,39 @@ def upload_video(path, title, recording_date, secrets, credentials):
 
 
 def main():
-    path = sys.argv[1]
-    secrets = sys.argv[2]
-    credentials = sys.argv[3]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path', nargs=1)
+    parser.add_argument('secrets', nargs=1)
+    parser.add_argument('credentials', nargs=1)
+    parser.add_argument(
+        '--limit',
+        default=0,
+        type=int,
+        help='Process only this number of videos.'
+    )
+    parser.add_argument(
+        '--delay',
+        default=0,
+        type=int,
+        help='Delay this number of seconds between videos.'
+    )
+
+    args = parser.parse_args()
+
+    path = args.path[0]
+    secrets = args.secrets[0]
+    credentials = args.credentials[0]
 
     files = os.listdir(path)
 
     local_tz = pytz.timezone('America/Los_Angeles')
     gopro_tz = local_tz
 
+    count = 0
     for filename in files:
+        if args.delay and count != 0:
+            time.sleep(args.delay)
+
         full_path = os.path.join(path, filename)
         basename, ext = os.path.splitext(filename)
         if ext != '.MP4':
@@ -82,5 +106,8 @@ def main():
             print("Error encountered: " + str(e))
 
         os.unlink(full_path)
-
         print("OK")
+
+        count += 1
+        if args.limit and count >= args.limit:
+            break
